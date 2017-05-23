@@ -17,7 +17,7 @@ public class HttpServer {
     private HttpGet request;
     private HttpResponse response;
     private String responseBody;
-    private String regExp = "(?=\\{)[\\W\\D\\d]*?\\}";
+    private String regExp = "(?=\\{)[\\W\\D\\d]*(?=\\))";
 
     public HttpServer() {
         this.client = HttpClientBuilder.create().build();
@@ -48,13 +48,6 @@ public class HttpServer {
         } else {
             return responseBody;
         }
-
-//        try {
-//            responseBody = EntityUtils.toString(httpEntity, "UTF-8")
-//                    .replace("L.loadAdSucess", "").replace("(", "").replace(")", "");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
     public Optional<Integer> getResponseCode() {
