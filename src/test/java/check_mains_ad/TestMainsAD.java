@@ -21,6 +21,8 @@ public class TestMainsAD {
     private ResponseFromServer responseFromServer;
     private int unsupportedResponseCode = 0;
     private int responseCode;
+    private CorrectResponse correctResponse;
+    private ErrorResponse errorResponse;
 
     @BeforeTest
     public void setUp() {
@@ -31,11 +33,11 @@ public class TestMainsAD {
 
     @Test
     public void testLoopMeMainsAd() {
-        String urlWithParams = baseUrl + "/api/v3/ads?callback=L.loadAdSucess&ak=test_interstitial_p&vt=7nd3gly3ys";
+        String urlWithParams = baseUrl + "/api/v3/ads?callback=L.loadAdSucess&ak=626f11a289&vt=7nd3gly3ys";
         httpServer.makeRequest(urlWithParams);
 
         try {
-            httpServer.makeResponse();
+            httpServer.executeRequest();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,17 +51,40 @@ public class TestMainsAD {
             return;
         }
 
-        responseFromServer = returnMappedObject(httpServer.getResponseBody());
 
-        if (responseFromServer instanceof CorrectResponse) {
-            assertEquals(((CorrectResponse) responseFromServer).getAds(),
-                    ((CorrectResponse) responseFromServer).getAds());
+
+        try {
+            correctResponse = (CorrectResponse) returnMapOb(httpServer.getResponseBody(), TypeOfAd.AD_LOADED);
+        } catch (IOException e) {
+            try {
+                errorResponse = (ErrorResponse) returnMapOb(httpServer.getResponseBody(), TypeOfAd.AD_FAILED);
+            } catch (IOException exp) {
+                exp.printStackTrace();
+            }
         }
 
-        if (responseFromServer instanceof ErrorResponse) {
-            assertEquals(responseFromServer.toString(), "",
+
+
+        if (correctResponse != null) {
+            assertEquals(correctResponse.getAds(), correctResponse.getAds());
+        }
+
+        if (errorResponse != null) {
+            assertEquals(errorResponse.toString(), "",
                     "Server does not return AD. There is: ");
         }
+
+//        responseFromServer = returnMappedObject(httpServer.getResponseBody());
+//
+//        if (responseFromServer instanceof CorrectResponse) {
+//            assertEquals(((CorrectResponse) responseFromServer).getAds(),
+//                    ((CorrectResponse) responseFromServer).getAds());
+//        }
+//
+//        if (responseFromServer instanceof ErrorResponse) {
+//            assertEquals(responseFromServer.toString(), "",
+//                    "Server does not return AD. There is: ");
+//        }
     }
 
     @AfterTest
@@ -69,6 +94,11 @@ public class TestMainsAD {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private Object returnMapOb(String jsonSting, TypeOfAd type) throws IOException {
+        return mapperJSON.getMappedResponse2(jsonSting, type);
     }
 
     private ResponseFromServer returnMappedObject(String jsonString) {

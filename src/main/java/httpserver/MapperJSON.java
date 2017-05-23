@@ -20,7 +20,23 @@ public class MapperJSON {
                 return mapper.readValue(jsonString, ErrorResponse.class);
             }
             default: {
-                return null;
+                throw new IOException("Unsupported Class");
+            }
+
+        }
+    }
+
+    public Object getMappedResponse2(String jsonString, TypeOfAd type)
+            throws IOException {
+        switch (type) {
+            case AD_LOADED: {
+                return mapper.readValue(jsonString, CorrectResponse.class);
+            }
+            case AD_FAILED: {
+                return mapper.readValue(jsonString, ErrorResponse.class);
+            }
+            default: {
+                throw new IOException("Unsupported Class");
             }
 
         }

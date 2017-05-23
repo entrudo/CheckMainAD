@@ -9,12 +9,15 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HttpServer {
     private CloseableHttpClient client;
     private HttpGet request;
     private HttpResponse response;
-    private String responseBody = "";
+    private String responseBody;
+    private String regExp = "(?=\\{)[\\W\\D\\d]*?\\}";
 
     public HttpServer() {
         this.client = HttpClientBuilder.create().build();
@@ -24,21 +27,34 @@ public class HttpServer {
         request = new HttpGet(URL);
     }
 
-    public void makeResponse() throws IOException {
+    public void executeRequest() throws IOException {
         response = client.execute(request);
     }
 
     public String getResponseBody() {
         HttpEntity httpEntity = response.getEntity();
 
-        try {
-            responseBody = EntityUtils.toString(httpEntity, "UTF-8")
-                    .replace("L.loadAdSucess", "").replace("(", "").replace(")", "");
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (responseBody == null) {
+            try {
+                Pattern pattern = Pattern.compile(regExp);
+                Matcher matcher = pattern.matcher(EntityUtils.toString(httpEntity, "UTF-8"));
+                if (matcher.find()) {
+                    responseBody = matcher.group();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return responseBody;
+        } else {
+            return responseBody;
         }
 
-        return responseBody;
+//        try {
+//            responseBody = EntityUtils.toString(httpEntity, "UTF-8")
+//                    .replace("L.loadAdSucess", "").replace("(", "").replace(")", "");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public Optional<Integer> getResponseCode() {
