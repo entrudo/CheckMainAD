@@ -1,6 +1,8 @@
 package check_mains_ad;
 
-import org.testng.Assert;
+import httpserver.HttpServer;
+import httpserver.MapperJSON;
+import httpserver.TypeOfAD;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -14,8 +16,11 @@ import static org.testng.Assert.assertEquals;
 
 public class TestMainsAD {
     private String URL;
-    HttpServer httpServer;
-    MapperJSON mapperJSON;
+    private HttpServer httpServer;
+    private MapperJSON mapperJSON;
+    private ResponseFromServer responseFromServer;
+    private int unsupportedResponseCode = 0;
+    private int responseCode;
 
     @BeforeTest
     public void setUp() {
@@ -28,19 +33,23 @@ public class TestMainsAD {
     public void testLoopMeMainsAd() {
         URL = "https://loopme.me/api/v3/ads?callback=L.loadAdSucess&ak=test_interstitial_p&vt=7nd3gly3ys";
         httpServer.makeRequest(URL);
+
         try {
             httpServer.makeResponse();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (httpServer.getResponseCode() != 200) {
-            assertEquals(Integer.toString(httpServer.getResponseCode()) + " " + httpServer
-                    .getResponseStatus(), "", "Page does not open server return: ");
+        responseCode = httpServer.getResponseCode().isPresent() ? httpServer.getResponseCode().get()
+                : unsupportedResponseCode;
+
+        if (responseCode != 200) {
+            assertEquals(responseCode + " " + httpServer
+                    .getResponseStatus(), "", "Page does not open, server return: ");
             return;
         }
 
-        ResponseFromServer responseFromServer = returnMappedObject(httpServer.gerResponseBody());
+        responseFromServer = returnMappedObject(httpServer.gerResponseBody());
 
         if (responseFromServer instanceof CorrectResponse) {
             assertEquals(((CorrectResponse) responseFromServer).getAds(), ((CorrectResponse) responseFromServer).getAds());
@@ -49,8 +58,6 @@ public class TestMainsAD {
         if (responseFromServer instanceof IncorrectResponse) {
             assertEquals(responseFromServer.toString(), "", "Server does not return AD. There is: ");
         }
-
-
     }
 
     @AfterTest
@@ -60,29 +67,22 @@ public class TestMainsAD {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-    public ResponseFromServer returnMappedObject(String jsonString) {
-        ResponseFromServer responseObject = new CorrectResponse();
-//        ResponseFromServer responseObject2 = new IncorrectResponse();
-
+    private ResponseFromServer returnMappedObject(String jsonString) {
+        ResponseFromServer responseObject;
 
         try {
             responseObject = mapperJSON
-                    .getMappedCorrectResponse(jsonString, MapperJSON.TYPE.AD_LOADED);
+                    .getMappedResponse(jsonString, TypeOfAD.AD_LOADED);
         } catch (IOException e) {
-            responseObject = mapperJSON
-                    .getMappedCorrectResponse(jsonString, MapperJSON.TYPE.AD_FAILED);
-            responseObject = null;
+            try {
+                responseObject = mapperJSON
+                        .getMappedResponse(jsonString, TypeOfAD.AD_FAILED);
+            } catch (IOException e1) {
+                responseObject = null;
+            }
         }
-
-//        try {
-//            responseObject2 = mapperJSON
-//                    .getMappedIncorrectResponse(jsonString);
-//        } catch (IOException e) {
-//        }
-//
 
         return responseObject;
     }

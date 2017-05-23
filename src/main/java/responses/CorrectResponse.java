@@ -1,9 +1,12 @@
 package responses;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.Arrays;
+import java.util.List;
 
+@JsonIgnoreProperties({"macros", "package_ids", "measure_partners", "tracking"})
 public class CorrectResponse implements ResponseFromServer {
     @JsonProperty
     private String eventLinkTemplate;

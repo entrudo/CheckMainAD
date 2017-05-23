@@ -1,4 +1,4 @@
-package check_mains_ad;
+package httpserver;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -8,14 +8,16 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class HttpServer {
-    private CloseableHttpClient client = HttpClientBuilder.create().build();
+    private CloseableHttpClient client;
     private HttpGet request;
     private HttpResponse response;
-    private HttpEntity httpEntity;
+    private String responseBody = "";
 
     public HttpServer() {
+        this.client = HttpClientBuilder.create().build();
     }
 
     public void makeRequest(String URL) {
@@ -27,8 +29,8 @@ public class HttpServer {
     }
 
     public String gerResponseBody() {
-        httpEntity = response.getEntity();
-        String responseBody = "";
+        HttpEntity httpEntity = response.getEntity();
+
         try {
             responseBody = EntityUtils.toString(httpEntity, "UTF-8")
                     .replace("L.loadAdSucess", "").replace("(", "").replace(")", "");
@@ -39,12 +41,12 @@ public class HttpServer {
         return responseBody;
     }
 
-    public Integer getResponseCode() {
-        return response.getStatusLine().getStatusCode();
+    public Optional<Integer> getResponseCode() {
+        return Optional.ofNullable(response.getStatusLine().getStatusCode());
     }
 
-    public String getResponseStatus() {
-        return response.getStatusLine().getReasonPhrase();
+    public Optional<String> getResponseStatus() {
+        return Optional.ofNullable(response.getStatusLine().getReasonPhrase());
     }
 
     public void closeClient() throws IOException {
