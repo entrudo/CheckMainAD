@@ -28,7 +28,7 @@ public class HttpServer {
         response = client.execute(request);
     }
 
-    public String gerResponseBody() {
+    public String getResponseBody() {
         HttpEntity httpEntity = response.getEntity();
 
         try {

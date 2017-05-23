@@ -2,12 +2,12 @@ package check_mains_ad;
 
 import httpserver.HttpServer;
 import httpserver.MapperJSON;
-import httpserver.TypeOfAD;
+import httpserver.TypeOfAd;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import responses.CorrectResponse;
-import responses.IncorrectResponse;
+import responses.ErrorResponse;
 import responses.ResponseFromServer;
 
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import static org.testng.Assert.assertEquals;
 
 public class TestMainsAD {
-    private String URL;
+    private String baseUrl = "https://loopme.me";;
     private HttpServer httpServer;
     private MapperJSON mapperJSON;
     private ResponseFromServer responseFromServer;
@@ -31,8 +31,8 @@ public class TestMainsAD {
 
     @Test
     public void testLoopMeMainsAd() {
-        URL = "https://loopme.me/api/v3/ads?callback=L.loadAdSucess&ak=test_interstitial_p&vt=7nd3gly3ys";
-        httpServer.makeRequest(URL);
+        String urlWithParams = baseUrl + "/api/v3/ads?callback=L.loadAdSucess&ak=test_interstitial_p&vt=7nd3gly3ys";
+        httpServer.makeRequest(urlWithParams);
 
         try {
             httpServer.makeResponse();
@@ -49,14 +49,16 @@ public class TestMainsAD {
             return;
         }
 
-        responseFromServer = returnMappedObject(httpServer.gerResponseBody());
+        responseFromServer = returnMappedObject(httpServer.getResponseBody());
 
         if (responseFromServer instanceof CorrectResponse) {
-            assertEquals(((CorrectResponse) responseFromServer).getAds(), ((CorrectResponse) responseFromServer).getAds());
+            assertEquals(((CorrectResponse) responseFromServer).getAds(),
+                    ((CorrectResponse) responseFromServer).getAds());
         }
 
-        if (responseFromServer instanceof IncorrectResponse) {
-            assertEquals(responseFromServer.toString(), "", "Server does not return AD. There is: ");
+        if (responseFromServer instanceof ErrorResponse) {
+            assertEquals(responseFromServer.toString(), "",
+                    "Server does not return AD. There is: ");
         }
     }
 
@@ -74,11 +76,11 @@ public class TestMainsAD {
 
         try {
             responseObject = mapperJSON
-                    .getMappedResponse(jsonString, TypeOfAD.AD_LOADED);
+                    .getMappedResponse(jsonString, TypeOfAd.AD_LOADED);
         } catch (IOException e) {
             try {
                 responseObject = mapperJSON
-                        .getMappedResponse(jsonString, TypeOfAD.AD_FAILED);
+                        .getMappedResponse(jsonString, TypeOfAd.AD_FAILED);
             } catch (IOException e1) {
                 responseObject = null;
             }

@@ -1,5 +1,5 @@
 package httpserver;
 
-public enum TypeOfAD {
+public enum TypeOfAd {
     AD_LOADED, AD_FAILED;
 }
