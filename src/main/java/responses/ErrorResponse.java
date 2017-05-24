@@ -2,7 +2,7 @@ package responses;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class ErrorResponse implements ResponseFromServer {
+public class ErrorResponse {
     @JsonProperty
     private int statusCode;
     @JsonProperty

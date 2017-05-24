@@ -1,5 +1,6 @@
 package check_mains_ad;
 
+import httpserver.ConstanceForAd;
 import httpserver.HttpServer;
 import httpserver.MapperJSON;
 import httpserver.TypeOfAd;

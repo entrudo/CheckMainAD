@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @JsonIgnoreProperties({"macros", "package_ids", "measure_partners", "tracking"})
-public class CorrectResponse implements ResponseFromServer {
+public class CorrectResponse {
     @JsonProperty
     private String eventLinkTemplate;
     @JsonProperty

@@ -17,14 +17,13 @@ public class HttpServer {
     private HttpGet request;
     private HttpResponse response;
     private String responseBody;
-    private String regExp = "(?=\\{)[\\W\\D\\d]*(?=\\))";
 
     public HttpServer() {
         this.client = HttpClientBuilder.create().build();
     }
 
-    public void makeRequest(String URL) {
-        request = new HttpGet(URL);
+    public void makeRequest(String url) {
+        request = new HttpGet(url);
     }
 
     public void executeRequest() throws IOException {
@@ -32,12 +31,11 @@ public class HttpServer {
     }
 
     public String getResponseBody() {
-        HttpEntity httpEntity = response.getEntity();
 
         if (responseBody == null) {
             try {
-                Pattern pattern = Pattern.compile(regExp);
-                Matcher matcher = pattern.matcher(EntityUtils.toString(httpEntity, "UTF-8"));
+                Pattern pattern = Pattern.compile(ConstanceForAd.REG_EXP);
+                Matcher matcher = pattern.matcher(getFullResponseBody().get());
                 if (matcher.find()) {
                     responseBody = matcher.group();
                 }
@@ -58,7 +56,20 @@ public class HttpServer {
         return Optional.ofNullable(response.getStatusLine().getReasonPhrase());
     }
 
+    public Optional<String> getFullResponseBody() throws IOException {
+        HttpEntity httpEntity;
+
+        if (response != null) {
+            httpEntity = response.getEntity();
+            return Optional.ofNullable(EntityUtils.toString(httpEntity, "UTF-8"));
+        }else {
+            throw new IOException("Response is null");
+        }
+    }
+
     public void closeClient() throws IOException {
-        client.close();
+        if (client != null) {
+            client.close();
+        }
     }
 }

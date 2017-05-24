@@ -3,7 +3,6 @@ package httpserver;
 import org.codehaus.jackson.map.ObjectMapper;
 import responses.CorrectResponse;
 import responses.ErrorResponse;
-import responses.ResponseFromServer;
 
 import java.io.IOException;
 
